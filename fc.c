@@ -1,16 +1,10 @@
 #include "fc.h"
 
 int confirmFileExtension(char *filepath, const char *expected_ext) {
-  char *filename;
-
-  char *token = strtok(filepath, "/");
-  while (token) {
-    filename = token;
-    token = strtok(NULL, "/");
-  }
+  char *filename = getFileName(filepath);
 
   char *actual_ext;
-  token = strtok(filename, ".");
+  char *token = strtok(filename, ".");
   while (token) {
     actual_ext = token;
     token = strtok(NULL, ".");
@@ -21,4 +15,22 @@ int confirmFileExtension(char *filepath, const char *expected_ext) {
   }
 
   return 0;
+}
+
+char *getFileName(char *filepath) {
+  char *filename;
+
+  char *token = strtok(filepath, "/");
+  while (token) {
+    filename = token;
+    token = strtok(NULL, "/");
+  }
+
+  return filename;
+}
+
+void extractEPUBFile(char *filepath, char *dir_path) {
+  char command[512];
+  snprintf(command, sizeof(command), "unzip -q -d %s %s", dir_path, filepath);
+  system(command);
 }

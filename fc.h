@@ -12,5 +12,7 @@
 #define EPUB_EXT "epub"
 
 int confirmFileExtension(char *filepath, const char *expected_ext);
+char *getFileName(char *filepath);
+void extractEPUBFile(char *filepath, char *dir_path);
 
 #endif

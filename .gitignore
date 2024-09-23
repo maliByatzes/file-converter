@@ -2,3 +2,4 @@ main
 *.obj
 *.o
 *.exe
+files/
