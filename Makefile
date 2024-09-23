@@ -1,8 +1,4 @@
-PHONY: run
+PHONY: build
 
 build:
-	@gcc -Wall -Wextra -g main.c -o main
-
-run:
-	@make build
-	@./main
+	@gcc -Wall -Wextra -g main.c fc.c -o main
