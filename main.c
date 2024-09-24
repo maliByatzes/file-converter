@@ -1,7 +1,7 @@
 #include "fc.h"
 
 int main(int argc, char **argv) {
-  char *filepath;
+  char *filepath; // .epub file path
   char temp[TEMP_SIZE];
 
   if (argc != 2) {
@@ -29,13 +29,21 @@ int main(int argc, char **argv) {
   extractEPUBFile(filepath, dir_path);
 
   // confirm the mimetype file contents
-  int ret = confirmEPUBFileType(dir_path);
+  memset(&temp, 0, TEMP_SIZE);
+  strncpy(temp, dir_path, TEMP_SIZE);
+  int ret = confirmEPUBFileType(temp);
   if (ret < 0) {
     perror("confirm file type error");
     exit(EXIT_FAILURE);
   } else if (ret > 0) {
     exit(EXIT_FAILURE);
   }
+
+  memset(&temp, 0, TEMP_SIZE);
+  strncpy(temp, dir_path, TEMP_SIZE);
+  strncat(temp, "/META-INF/container.xml", 24);
+
+  getLocationOfPackageDocument(temp);
 
   exit(EXIT_SUCCESS);
 }

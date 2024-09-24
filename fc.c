@@ -61,3 +61,46 @@ int confirmEPUBFileType(char *dir_path) {
   fclose(fptr);
   return 0;
 }
+
+// open .xml file and return all its contents
+char *parseXMLFile(char *filepath) {
+  FILE *fptr;
+  fptr = fopen(filepath, "r");
+  if (fptr == NULL) {
+    perror("fopen error");
+    return NULL;
+  }
+
+  char *buffer = malloc(BUF_SIZE);
+  memset(buffer, 0, BUF_SIZE);
+  char temp[TEMP_SIZE];
+  memset(&temp, 0, TEMP_SIZE);
+  while ((fgets(temp, TEMP_SIZE, fptr)) != NULL) {
+    strncat(buffer, temp, TEMP_SIZE + 1);
+    memset(&temp, 0, TEMP_SIZE);
+  };
+
+  if (ferror(fptr)) {
+    fprintf(stderr, "error indicator set");
+    fclose(fptr);
+    return NULL;
+  }
+
+  return buffer;
+}
+
+char *getLocationOfPackageDocument(char *dir_path) {
+  char *xml_file_contents = parseXMLFile(dir_path);
+
+  if (xml_file_contents == NULL) {
+    return NULL;
+  }
+
+  char buf[9];
+  for (char c = *xml_file_contents; c != '\0'; c = *++xml_file_contents) {
+    strncat(buf, &c, 1);
+  }
+
+  // free(xml_file_contents);
+  return NULL;
+}

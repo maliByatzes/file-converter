@@ -8,6 +8,7 @@
 
 // constants
 #define TEMP_SIZE 512
+#define BUF_SIZE 1024
 
 // accepted file extensions
 #define EPUB_EXT "epub"
@@ -18,5 +19,7 @@ int confirmFileExtension(char *filepath, const char *expected_ext);
 char *getFileName(char *filepath);
 void extractEPUBFile(char *filepath, char *dir_path);
 int confirmEPUBFileType(char *dir_path);
+char *parseXMLFile(char *filepath);
+char *getLocationOfPackageDocument(char *dir_path);
 
 #endif
