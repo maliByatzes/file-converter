@@ -28,5 +28,14 @@ int main(int argc, char **argv) {
 
   extractEPUBFile(filepath, dir_path);
 
-  return 0;
+  // confirm the mimetype file contents
+  int ret = confirmEPUBFileType(dir_path);
+  if (ret < 0) {
+    perror("confirm file type error");
+    exit(EXIT_FAILURE);
+  } else if (ret > 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  exit(EXIT_SUCCESS);
 }
