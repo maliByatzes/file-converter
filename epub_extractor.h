@@ -21,8 +21,10 @@ char *getExtractDirectory(char *filepath);
 char *extractEpubZip(char *filepath, char *dest_dir);
 void confirmEpubFileExtension(char *filepath);
 void confirmEpubFileType(char *contents);
+char *findPackageContentLocation(char *tokens); // change parameter later
 char *extractContentsFromFile(char *filename);
 void str_cpyy(char *src, char *dest, size_t size);
+char *cleanExtractDir(char *extracted_dir);
 
 #endif
 

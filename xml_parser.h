@@ -7,5 +7,6 @@
 #include <unistd.h>
 
 struct s_xmlparser {};
+typedef struct s_xmlparser XMLParser;
 
 #endif

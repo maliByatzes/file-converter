@@ -1,4 +1,5 @@
 #include "epub_extractor.h"
+#include "xml_parser.h"
 
 Epub *extractEpubFile(char *file_path, char *result_filename) {
   // Steps:
@@ -15,6 +16,11 @@ Epub *extractEpubFile(char *file_path, char *result_filename) {
   char buf[TEMP_SIZE];
 
   epub_ptr = malloc(sizeof(struct s_epub));
+
+  if (epub_ptr == NULL) {
+    perror("malloc error");
+    exit(EXIT_FAILURE);
+  }
 
   memset(epub_ptr, 0, sizeof(struct s_epub));
   epub_ptr->epub_filepath = file_path;
@@ -37,8 +43,25 @@ Epub *extractEpubFile(char *file_path, char *result_filename) {
   confirmEpubFileType(extract_dir);
 
   // 5. parse the `container.xml` file to get back tokens
-  // 6. find the `package.opf` file location and update struct
 
+  XMLParser *xml_parser;
+  xml_parser = malloc(sizeof(struct s_xmlparser));
+
+  if (xml_parser == NULL) {
+    perror("malloc error");
+    exit(EXIT_FAILURE);
+  }
+
+  // extracted-dir/META-INF/container.xml
+  char *extract_dir = cleanExtractDir(extract_dir);
+  strncat(extract_dir, "/META-INF/container.xml", 24);
+  // xml_parser->parseFile(extract_dir);
+
+  // 6. find the `package.opf` file location and update struct
+  // char *opf_filepath = findPackageContentLocation(xml_parser->tokens);
+  // epub_ptr->opf_filepath = opf_filepath;
+
+  free(xml_parser);
   return epub_ptr;
 }
 
@@ -50,9 +73,13 @@ void confirmEpubFileExtension(char *filepath) {}
 
 void confirmEpubFileType(char *contents) {}
 
+char *findPackageContentLocation(char *tokens) {}
+
 char *extractContentsFromFile(char *filename) {}
 
 void str_cpyy(char *src, char *dest, size_t size) {
   memset(&dest, 0, sizeof(dest));
   strncpy(dest, src, size);
 }
+
+char *cleanExtractDir(char *extracted_dir) {}
