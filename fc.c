@@ -1,5 +1,9 @@
 #include "fc.h"
 
+void convertEpubToPDF(char *file_path, char *result_filename) {}
+
+void convertPDFToEpub(char *file_path, char *result_filename) {}
+/*
 int confirmFileExtension(char *filepath, const char *expected_ext) {
   char *filename = getFileName(filepath);
 
@@ -103,4 +107,4 @@ char *getLocationOfPackageDocument(char *dir_path) {
 
   // free(xml_file_contents);
   return NULL;
-}
+}*/
