@@ -10,6 +10,8 @@ void convertEpubToPDF(char *file_path, char *result_filename) {
   printf("extracted_filepath: %s\n", epub_ptr->extracted_filepath);
   printf("opf_filepath: %s\n", epub_ptr->opf_filepath);
 
+  free(epub_ptr->extracted_dir);
+  free(epub_ptr->extracted_filepath);
   free(epub_ptr);
 }
 
