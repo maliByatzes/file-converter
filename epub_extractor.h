@@ -7,6 +7,8 @@
 #include <unistd.h>
 
 #define TEMP_SIZE 512
+#define BUF_SIZE 1024
+#define MIMETYPE_CONTENTS "application/epub+zip"
 
 struct s_epub {
   char *epub_filepath;
@@ -23,17 +25,8 @@ void confirmEpubFileExtension(char *filepath);
 void confirmEpubFileType(char *contents);
 char *findPackageContentLocation(char *tokens); // change parameter later
 char *extractContentsFromFile(char *filename);
-void str_cpyy(char *src, char *dest, size_t size);
-char *cleanExtractDir(char *extracted_dir);
+void str_cpyy(char *dest, char *src, size_t src_size);
+char *cleanExtractedFilepath(char *extracted_filepath);
+char *getFileName(char *filepath, char *filename);
 
 #endif
-
-// Steps:
-// 1. confirm that `file_path` is valid for .epub file extension
-// 2. perform a `unzip` command extract the .epub file
-// 3. open and read the `mimetype` file
-// 4. confirm the contents of `mimetype` type as valid for
-//    .epub file
-// 5. parse the `container.xml` file to get back tokens
-// 6. find the `package.opf` file location and update struct
-// 7. finally return the `s_epub` struct
