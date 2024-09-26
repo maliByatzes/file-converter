@@ -26,7 +26,6 @@ void confirmEpubFileType(char *contents);
 char *findPackageContentLocation(char *tokens); // change parameter later
 char *extractContentsFromFile(char *filename);
 void str_cpyy(char *dest, char *src, size_t src_size);
-char *cleanExtractedFilepath(char *extracted_filepath);
 char *getFileName(char *filepath, char *filename);
 
 #endif

@@ -5,6 +5,8 @@
 // prevent memory leak on heap allocated pointers.
 
 Epub *extractEpubFile(char *file_path, char *result_filename) {
+  (void)result_filename;
+
   Epub *epub_ptr;
   char buf[TEMP_SIZE];
 
@@ -31,33 +33,38 @@ Epub *extractEpubFile(char *file_path, char *result_filename) {
   char *extracted_filepath = extractEpubZip(buf, extract_dir);
   epub_ptr->extracted_filepath = extracted_filepath;
 
-  strncat(extracted_filepath, "/mimetype", 10);
-  char *mimetype_filecontents = extractContentsFromFile(extracted_filepath);
+  str_cpyy(buf, extracted_filepath, strlen(extracted_filepath));
+
+  strncat(buf, "/mimetype", 10);
+  char *mimetype_filecontents = extractContentsFromFile(buf);
 
   confirmEpubFileType(mimetype_filecontents);
 
-  /*
   XMLParser *xml_parser;
   xml_parser = malloc(sizeof(struct s_xmlparser));
 
   if (xml_parser == NULL) {
     perror("malloc error");
-    free(extract_dir);
-    free(extracted_filepath);
     free(mimetype_filecontents);
     exit(EXIT_FAILURE);
-  }*/
+  }
 
-  // extracted-dir/META-INF/container.xml
-  // char *extracted_f2 = cleanExtractedFilepath(extracted_filepath);
-  // strncat(extracted_f2, "/META-INF/container.xml", 24);
-  // xml_parser->parseFile(extracted_f2);
+  printf("extracted_filepath: %s\n", extracted_filepath);
+  str_cpyy(buf, extracted_filepath, strlen(extracted_filepath));
+
+  strncat(buf, "/META-INF/container.xml", 24);
+
+  char *container_filecontents = extractContentsFromFile(buf);
+
+  xml_parser->elements = (struct s_element *)malloc(100 * sizeof(struct s_element));
+  xml_parser->elements = parseContent(container_filecontents);
 
   // char *opf_filepath = findPackageContentLocation(xml_parser->tokens);
   // epub_ptr->opf_filepath = opf_filepath;
 
   // free(xml_parser);
   free(mimetype_filecontents);
+  free(container_filecontents);
 
   return epub_ptr;
 }
@@ -122,7 +129,10 @@ void confirmEpubFileType(char *contents) {
   }
 }
 
-char *findPackageContentLocation(char *tokens) {}
+char *findPackageContentLocation(char *tokens) {
+  (void) tokens;
+  return NULL;
+}
 
 char *extractContentsFromFile(char *filename) {
   FILE *fptr;
@@ -136,7 +146,13 @@ char *extractContentsFromFile(char *filename) {
   char *buffer = malloc(BUF_SIZE);
   memset(buffer, 0, BUF_SIZE);
 
-  fgets(buffer, BUF_SIZE, fptr);
+  char temp[TEMP_SIZE];
+  memset(temp, 0, TEMP_SIZE);
+
+  while ((fgets(temp, TEMP_SIZE, fptr)) != NULL) {
+    strncat(buffer, temp, TEMP_SIZE + 1);
+    memset(temp, 0, TEMP_SIZE);
+  }
 
   if (ferror(fptr)) {
     fprintf(stderr, "error indicator set");
@@ -151,8 +167,6 @@ void str_cpyy(char *dest, char *src, size_t src_size) {
   memset(dest, 0, strlen(dest));
   strncpy(dest, src, src_size);
 }
-
-char *cleanExtractDir(char *extracted_dir) {}
 
 char *getFileName(char *filepath, char *filename) {
   char *token = strtok(filepath, "/");

@@ -24,6 +24,6 @@ struct s_xmlparser {
 };
 typedef struct s_xmlparser XMLParser;
 
-struct s_element *parseContent();
+struct s_element *parseContent(char *file_contents);
 
 #endif

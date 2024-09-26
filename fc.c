@@ -15,4 +15,7 @@ void convertEpubToPDF(char *file_path, char *result_filename) {
   free(epub_ptr);
 }
 
-void convertPDFToEpub(char *file_path, char *result_filename) {}
+void convertPDFToEpub(char *file_path, char *result_filename) {
+  (void)file_path;
+  (void)result_filename;
+}
