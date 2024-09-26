@@ -20,10 +20,13 @@ struct s_element {
 struct s_xmlparser {
   size_t position;
   size_t line;
+  char *file_contents;
   struct s_element *elements;
 };
 typedef struct s_xmlparser XMLParser;
 
-struct s_element *parseContent(char *file_contents);
+void parseContent(XMLParser *xml_parser);
+void processXMLProlog(XMLParser *xml_parser);
+void processXMLAttribute(XMLParser *xml_parser);
 
 #endif

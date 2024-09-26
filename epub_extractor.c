@@ -57,14 +57,16 @@ Epub *extractEpubFile(char *file_path, char *result_filename) {
   char *container_filecontents = extractContentsFromFile(buf);
 
   xml_parser->elements = (struct s_element *)malloc(100 * sizeof(struct s_element));
-  xml_parser->elements = parseContent(container_filecontents);
+  xml_parser->file_contents = container_filecontents;
+  parseContent(xml_parser);
 
   // char *opf_filepath = findPackageContentLocation(xml_parser->tokens);
   // epub_ptr->opf_filepath = opf_filepath;
 
-  // free(xml_parser);
+  free(xml_parser->file_contents);
+  free(xml_parser->elements);
+  free(xml_parser);
   free(mimetype_filecontents);
-  free(container_filecontents);
 
   return epub_ptr;
 }
