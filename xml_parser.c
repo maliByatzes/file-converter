@@ -1,21 +1,21 @@
 #include "xml_parser.h"
+#include "epub_extractor.h"
 
 void parseContent(XMLParser *p) {
-  char next_char;
+  char curr_char;
   p->position = 0;
   p->line = 1;
 
   while (p->position < strlen(p->file_contents)) {
-    char c = p->file_contents[p->position];
+    char c = consumeChar(p);
 
     switch (c) {
     case '<':
-      next_char = p->file_contents[p->position + 1];
-      if (next_char == '?') {
-        printf("<?\n");
+      curr_char = p->file_contents[p->position];
+      if (curr_char == '?') {
+        consumeChar(p);
         processXMLProlog(p);
       } else {
-        printf("<\n");
         processXMLAttribute(p);
       }
       break;
@@ -23,11 +23,61 @@ void parseContent(XMLParser *p) {
       fprintf(stderr, "error: invalid character found.");
       exit(EXIT_FAILURE);
     }
-
-    p->position++;
   }
 }
 
-void processXMLProlog(XMLParser *xml_parser) { (void)xml_parser; }
+void processXMLProlog(XMLParser *p) {
+  char buf[BUF_SIZE];
+  memset(buf, 0, BUF_SIZE);
+
+  while (p->file_contents[p->position] != ' ') {
+    strncat(buf, &p->file_contents[p->position], sizeof(char));
+    p->position++;
+  }
+  p->position++;
+
+  if ((strcmp(buf, "xml")) != 0) {
+    fprintf(stderr, "error: invalid xml prolog tag.\n");
+    exit(EXIT_FAILURE);
+  }
+
+  memset(buf, 0, BUF_SIZE);
+
+  struct s_element *element =
+      (struct s_element *)malloc(sizeof(struct s_element));
+  element->n_attributes = 0;
+  element->attributes =
+      (struct s_attribute *)malloc(50 * sizeof(struct s_attribute));
+
+  while (p->file_contents[p->position] != '?') {
+
+    while (p->file_contents[p->position] != ' ') {
+      while (p->file_contents[p->position] != '=') {
+        strncat(buf, &p->file_contents[p->position], sizeof(char));
+        p->position++;
+      }
+      p->position += 2;
+      element->attributes[element->n_attributes].name = buf;
+      memset(buf, 0, BUF_SIZE);
+
+      while (p->file_contents[p->position] != '"') {
+        strncat(buf, &p->file_contents[p->position], sizeof(char));
+        p->position++;
+      }
+      element->attributes[element->n_attributes].value = buf;
+      memset(buf, 0, BUF_SIZE);
+
+      p->position++;
+    }
+
+    p->position++;
+  }
+
+  printf("buf: %s\n", buf);
+}
 
 void processXMLAttribute(XMLParser *xml_parser) { (void)xml_parser; }
+
+char consumeChar(XMLParser *xml_parser) {
+  return xml_parser->file_contents[xml_parser->position++];
+}
