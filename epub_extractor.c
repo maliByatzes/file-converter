@@ -1,9 +1,6 @@
 #include "epub_extractor.h"
 #include "xml_parser.h"
 
-// TODO: use return statements instead of `exit()` to
-// prevent memory leak on heap allocated pointers.
-
 Epub *newEpub() {
   Epub *epub_ptr;
 
