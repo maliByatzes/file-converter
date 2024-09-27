@@ -11,9 +11,12 @@ struct s_attribute {
   char *value;
 };
 
+// TODO: make a custom dynamic array...
+
 struct s_element {
   char *name;
   size_t n_attributes;
+  size_t capacity;
   struct s_attribute *attributes;
   int is_prolog;
 };
@@ -23,6 +26,7 @@ struct s_xmlparser {
   size_t line;
   char *file_contents;
   size_t n_elements;
+  size_t capacity;
   struct s_element *elements;
 };
 typedef struct s_xmlparser XMLParser;

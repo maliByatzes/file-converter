@@ -5,6 +5,12 @@ XMLParser *newXMLParser() {
   XMLParser *xml_parser;
 
   xml_parser = (XMLParser *)malloc(sizeof(XMLParser));
+  xml_parser->elements =
+      (struct s_element *)malloc(50 * sizeof(struct s_element));
+  xml_parser->n_elements = 0;
+  xml_parser->capacity = 50;
+  xml_parser->position = 0;
+  xml_parser->line = 1;
 
   if (xml_parser == NULL) {
     perror("malloc error");
@@ -22,8 +28,6 @@ void closeXMLParser(XMLParser *xml_parser) {
 
 void parseContent(XMLParser *p) {
   char curr_char;
-  p->position = 0;
-  p->line = 1;
 
   while (p->position < strlen(p->file_contents)) {
     char c = consumeChar(p);
@@ -64,9 +68,10 @@ void processXMLProlog(XMLParser *p) {
 
   struct s_element *element =
       (struct s_element *)malloc(sizeof(struct s_element));
-  element->n_attributes = 0;
   element->attributes =
       (struct s_attribute *)malloc(50 * sizeof(struct s_attribute));
+  element->n_attributes = 0;
+  element->capacity = 50;
 
   while (p->file_contents[p->position] != '?') {
 
