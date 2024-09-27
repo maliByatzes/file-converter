@@ -73,6 +73,9 @@ void parseContent(XMLParser *p) {
 }
 
 void processXMLProlog(XMLParser *p) {
+  Element *element = newElement();
+  element->is_prolog = 1;
+
   char buf[STRING_SIZE];
   memset(buf, 0, STRING_SIZE);
 
@@ -86,12 +89,9 @@ void processXMLProlog(XMLParser *p) {
     fprintf(stderr, "error: invalid xml prolog tag.\n");
     exit(EXIT_FAILURE);
   }
+  strncpy(element->name, buf, STRING_SIZE);
 
   memset(buf, 0, STRING_SIZE);
-
-  Element *element = newElement();
-  element->is_prolog = 1;
-  strncpy(element->name, "xml", 4);
 
   while (p->file_contents[p->position] != '?') {
 
