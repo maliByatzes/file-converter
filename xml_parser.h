@@ -5,38 +5,42 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
-struct s_attribute {
-  char *name;
-  char *value;
-};
+#define STRING_SIZE 512
+
+typedef struct {
+  char name[STRING_SIZE];
+  char value[STRING_SIZE];
+} Attribute;
 
 // TODO: make a custom dynamic array...
 
-struct s_element {
-  char *name;
+typedef struct {
+  char name[STRING_SIZE];
   size_t n_attributes;
   size_t capacity;
-  struct s_attribute *attributes;
+  Attribute *attributes;
   int is_prolog;
-};
+} Element;
 
-struct s_xmlparser {
+typedef struct {
   size_t position;
   size_t line;
   char *file_contents;
   size_t n_elements;
   size_t capacity;
-  struct s_element *elements;
-};
-typedef struct s_xmlparser XMLParser;
+  Element *elements;
+} XMLParser;
+
+Element *newElement();
+void closeElement(Element *);
 
 XMLParser *newXMLParser();
-void closeXMLParser(XMLParser *xml_parser);
-
-void parseContent(XMLParser *xml_parser);
-void processXMLProlog(XMLParser *xml_parser);
-void processXMLAttribute(XMLParser *xml_parser);
-char consumeChar(XMLParser *xml_parser);
+void closeXMLParser(XMLParser *);
+void parseContent(XMLParser *);
+void processXMLProlog(XMLParser *);
+void processXMLAttribute(XMLParser *);
+char consumeChar(XMLParser *);
 
 #endif
