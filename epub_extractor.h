@@ -18,7 +18,10 @@ struct s_epub {
 };
 typedef struct s_epub Epub;
 
-Epub *extractEpubFile(char *file_path, char *result_filename);
+Epub *newEpub();
+void closeEpub(Epub *epub);
+
+void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename);
 char *getExtractDirectory(char *filepath);
 char *extractEpubZip(char *filepath, char *dest_dir);
 void confirmEpubFileExtension(char *filepath);

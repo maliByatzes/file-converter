@@ -4,18 +4,29 @@
 // TODO: use return statements instead of `exit()` to
 // prevent memory leak on heap allocated pointers.
 
-Epub *extractEpubFile(char *file_path, char *result_filename) {
-  (void)result_filename;
-
+Epub *newEpub() {
   Epub *epub_ptr;
-  char buf[TEMP_SIZE];
 
-  epub_ptr = malloc(sizeof(struct s_epub));
+  epub_ptr = (Epub *)malloc(sizeof(Epub));
 
   if (epub_ptr == NULL) {
     perror("malloc error");
     exit(EXIT_FAILURE);
   }
+
+  return epub_ptr;
+}
+
+void closeEpub(Epub *epub) {
+  free(epub->extracted_dir);
+  free(epub->extracted_filepath);
+  free(epub);
+}
+
+void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
+  (void)result_filename;
+
+  char buf[TEMP_SIZE];
 
   memset(epub_ptr, 0, sizeof(struct s_epub));
   epub_ptr->epub_filepath = file_path;
@@ -40,14 +51,7 @@ Epub *extractEpubFile(char *file_path, char *result_filename) {
 
   confirmEpubFileType(mimetype_filecontents);
 
-  XMLParser *xml_parser;
-  xml_parser = malloc(sizeof(struct s_xmlparser));
-
-  if (xml_parser == NULL) {
-    perror("malloc error");
-    free(mimetype_filecontents);
-    exit(EXIT_FAILURE);
-  }
+  XMLParser *xml_parser = newXMLParser();
 
   printf("extracted_filepath: %s\n", extracted_filepath);
   str_cpyy(buf, extracted_filepath, strlen(extracted_filepath));
@@ -56,25 +60,20 @@ Epub *extractEpubFile(char *file_path, char *result_filename) {
 
   char *container_filecontents = extractContentsFromFile(buf);
 
-  xml_parser->elements = (struct s_element *)malloc(100 * sizeof(struct s_element));
   xml_parser->file_contents = container_filecontents;
   parseContent(xml_parser);
 
   // char *opf_filepath = findPackageContentLocation(xml_parser->tokens);
   // epub_ptr->opf_filepath = opf_filepath;
 
-  free(xml_parser->file_contents);
-  free(xml_parser->elements);
-  free(xml_parser);
+  closeXMLParser(xml_parser);
   free(mimetype_filecontents);
-
-  return epub_ptr;
 }
 
 char *getExtractDirectory(char *filepath) {
   char *filename = NULL;
 
-  char *extract_dir = malloc(BUF_SIZE);
+  char *extract_dir = (char *)malloc(BUF_SIZE);
 
   char temp_buf[TEMP_SIZE];
   memset(temp_buf, 0, TEMP_SIZE);
@@ -89,7 +88,7 @@ char *getExtractDirectory(char *filepath) {
 }
 
 char *extractEpubZip(char *filepath, char *dest_dir) {
-  char *extracted_filepath = malloc(BUF_SIZE);
+  char *extracted_filepath = (char *)malloc(BUF_SIZE);
 
   snprintf(extracted_filepath, BUF_SIZE, "./files/%s", dest_dir);
 
@@ -145,7 +144,7 @@ char *extractContentsFromFile(char *filename) {
     exit(EXIT_FAILURE);
   }
 
-  char *buffer = malloc(BUF_SIZE);
+  char *buffer = (char *)malloc(BUF_SIZE);
   memset(buffer, 0, BUF_SIZE);
 
   char temp[TEMP_SIZE];

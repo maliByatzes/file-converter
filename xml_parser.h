@@ -27,6 +27,9 @@ struct s_xmlparser {
 };
 typedef struct s_xmlparser XMLParser;
 
+XMLParser *newXMLParser();
+void closeXMLParser(XMLParser *xml_parser);
+
 void parseContent(XMLParser *xml_parser);
 void processXMLProlog(XMLParser *xml_parser);
 void processXMLAttribute(XMLParser *xml_parser);
