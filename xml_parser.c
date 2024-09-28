@@ -65,7 +65,7 @@ void parseContent(XMLParser *p) {
         break;
       } else {
         consumeChar(p);
-        processXMLAttribute(p);
+        processXMLElement(p);
       }
       break;
     case '\n':
@@ -145,7 +145,7 @@ void processXMLProlog(XMLParser *p) {
   p->position += 3;
 }
 
-void processXMLAttribute(XMLParser *p) {
+void processXMLElement(XMLParser *p) {
   unsigned long index = 0;
 
   Element *element = newElement();

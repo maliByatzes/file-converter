@@ -40,7 +40,7 @@ XMLParser *newXMLParser();
 void closeXMLParser(XMLParser *);
 void parseContent(XMLParser *);
 void processXMLProlog(XMLParser *);
-void processXMLAttribute(XMLParser *);
+void processXMLElement(XMLParser *);
 char consumeChar(XMLParser *);
 
 #endif
