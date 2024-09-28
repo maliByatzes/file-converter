@@ -57,6 +57,12 @@ void parseContent(XMLParser *p) {
       if (curr_char == '?') {
         consumeChar(p);
         processXMLProlog(p);
+      } else if (curr_char == '/') {
+        // move to the next '<'
+        while (p->file_contents[p->position] != '>') {
+          p->position++;
+        }
+        break;
       } else {
         consumeChar(p);
         processXMLAttribute(p);
@@ -64,6 +70,10 @@ void parseContent(XMLParser *p) {
       break;
     case '\n':
       p->line++;
+      break;
+    case ' ':
+    case '\r':
+      p->position++;
       break;
     default:
       fprintf(stderr, "error: invalid character found.");
@@ -102,7 +112,7 @@ void processXMLProlog(XMLParser *p) {
         p->position++;
       }
 
-      // check capacity == n_attributes
+      // ERROR: check capacity == n_attributes
       strncpy(element->attributes[element->n_attributes].name, buf,
               STRING_SIZE);
 
@@ -127,7 +137,7 @@ void processXMLProlog(XMLParser *p) {
     p->position++;
   }
 
-  // check capacity == n_elements
+  // ERROR: check capacity == n_elements
   memcpy(&p->elements[p->n_elements], element, sizeof(Element));
   p->n_elements++;
 
@@ -135,9 +145,90 @@ void processXMLProlog(XMLParser *p) {
   p->position += 3;
 }
 
-void processXMLAttribute(XMLParser *xml_parser) {
-  (void)xml_parser;
-  assert(0 && "Not implemented.");
+void processXMLAttribute(XMLParser *p) {
+  unsigned long index = 0;
+
+  Element *element = newElement();
+  element->is_prolog = 0;
+
+  char buf[STRING_SIZE];
+  memset(buf, 0, STRING_SIZE);
+
+  while (p->file_contents[p->position] != ' ') {
+    strncat(buf, &p->file_contents[p->position], sizeof(char));
+    p->position++;
+  }
+  p->position++;
+
+  strncpy(element->name, buf, STRING_SIZE);
+
+  memset(buf, 0, STRING_SIZE);
+
+  while (p->file_contents[p->position] != '>' ||
+         p->file_contents[p->position] != '/') {
+
+    while (p->file_contents[p->position] != ' ') {
+
+      while (p->file_contents[p->position] != '=') {
+        strncat(buf, &p->file_contents[p->position], sizeof(char));
+        p->position++;
+      }
+
+      // ERROR: check capacity == n_attributes
+      strncpy(element->attributes[element->n_attributes].name, buf,
+              STRING_SIZE);
+
+      memset(buf, 0, STRING_SIZE);
+
+      p->position += 2;
+      while (p->file_contents[p->position] != '"') {
+        strncat(buf, &p->file_contents[p->position], sizeof(char));
+        p->position++;
+      }
+
+      strncpy(element->attributes[element->n_attributes].value, buf,
+              STRING_SIZE);
+      element->n_attributes++;
+
+      memset(buf, 0, STRING_SIZE);
+
+      if (p->file_contents[p->position + 1] != '>' ||
+          p->file_contents[p->position + 1] != '/')
+        p->position++;
+      else
+        break;
+    }
+    p->position++;
+  }
+
+  if (p->file_contents[p->position] == '/') {
+    // ERROR: check capacity == n_elements
+    memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+    p->n_elements++;
+    p->position++;
+  } else {
+    index = p->position;
+    while (index < strlen(p->file_contents)) {
+      if (p->file_contents[index] == '/') {
+        while (p->file_contents[index] != '>') {
+          strncat(buf, &p->file_contents[p->position], sizeof(char));
+          index++;
+        }
+
+        if ((strcmp(buf, element->name)) == 0) {
+          // ERROR: check capacity == n_elements
+          memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+          p->n_elements++;
+          break;
+        }
+      }
+      index++;
+    }
+  }
+
+  memset(buf, 0, STRING_SIZE);
+  closeElement(element);
+  p->position++;
 }
 
 char consumeChar(XMLParser *xml_parser) {
