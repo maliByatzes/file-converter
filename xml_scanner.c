@@ -1,4 +1,4 @@
-#include "xml_parser.h"
+#include "xml_scanner.h"
 
 Element *newElement() {
   Element *element;
@@ -21,9 +21,9 @@ void closeElement(Element *element) {
   free(element);
 }
 
-XMLParser *newXMLParser() {
-  XMLParser *xml_parser;
-  xml_parser = (XMLParser *)malloc(sizeof(XMLParser));
+XMLScanner *newXMLScanner() {
+  XMLScanner *xml_parser;
+  xml_parser = (XMLScanner *)malloc(sizeof(XMLScanner));
 
   if (xml_parser == NULL) {
     perror("malloc error");
@@ -39,13 +39,13 @@ XMLParser *newXMLParser() {
   return xml_parser;
 }
 
-void closeXMLParser(XMLParser *xml_parser) {
+void closeXMLScanner(XMLScanner *xml_parser) {
   free(xml_parser->file_contents);
   free(xml_parser->elements);
   free(xml_parser);
 }
 
-void printFileContents(XMLParser *p) {
+void printFileContents(XMLScanner *p) {
   unsigned long index = p->position;
   while (index < strlen(p->file_contents)) {
     printf("%lu = '%c' -> %d\n", index, p->file_contents[index],
@@ -54,7 +54,7 @@ void printFileContents(XMLParser *p) {
   }
 }
 
-void parseContent(XMLParser *p) {
+void parseContent(XMLScanner *p) {
   char curr_char;
 
   while (p->position < strlen(p->file_contents)) {
@@ -67,7 +67,6 @@ void parseContent(XMLParser *p) {
         consumeChar(p);
         processXMLProlog(p);
       } else if (curr_char == '/') {
-        // move to the next '<'
         while (p->file_contents[p->position] != '>') {
           p->position++;
         }
@@ -93,7 +92,7 @@ void parseContent(XMLParser *p) {
   printf("stop");
 }
 
-void processXMLProlog(XMLParser *p) {
+void processXMLProlog(XMLScanner *p) {
   Element *element = newElement();
   element->is_prolog = 1;
 
@@ -111,6 +110,7 @@ void processXMLProlog(XMLParser *p) {
     exit(EXIT_FAILURE);
   }
   strncpy(element->name, buf, STRING_SIZE);
+  printf("element->name in PXP: %s\n", element->name);
 
   memset(buf, 0, STRING_SIZE);
 
@@ -156,7 +156,7 @@ void processXMLProlog(XMLParser *p) {
   p->position += 3;
 }
 
-void processXMLElement(XMLParser *p) {
+void processXMLElement(XMLScanner *p) {
   unsigned long index = 0;
   int found_closing = 0;
 
@@ -167,12 +167,16 @@ void processXMLElement(XMLParser *p) {
   memset(buf, 0, STRING_SIZE);
 
   while (p->file_contents[p->position] != ' ') {
+    if (p->file_contents[p->position] == '>') {
+        break;
+    }
     strncat(buf, &p->file_contents[p->position], sizeof(char));
     p->position++;
   }
   p->position++;
 
   strncpy(element->name, buf, STRING_SIZE);
+  printf("element->name in PXE: %s\n", element->name);
 
   memset(buf, 0, STRING_SIZE);
 
@@ -251,6 +255,6 @@ void processXMLElement(XMLParser *p) {
   p->position++;
 }
 
-char consumeChar(XMLParser *xml_parser) {
+char consumeChar(XMLScanner *xml_parser) {
   return xml_parser->file_contents[xml_parser->position++];
 }

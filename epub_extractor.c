@@ -1,5 +1,5 @@
 #include "epub_extractor.h"
-#include "xml_parser.h"
+#include "xml_scanner.h"
 
 Epub *newEpub() {
   Epub *epub_ptr;
@@ -48,7 +48,7 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
 
   confirmEpubFileType(mimetype_filecontents);
 
-  XMLParser *xml_parser = newXMLParser();
+  XMLScanner *xml_parser = newXMLScanner();
 
   printf("extracted_filepath: %s\n", extracted_filepath);
   str_cpyy(buf, extracted_filepath, strlen(extracted_filepath));
@@ -63,7 +63,7 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
   // char *opf_filepath = findPackageContentLocation(xml_parser->tokens);
   // epub_ptr->opf_filepath = opf_filepath;
 
-  closeXMLParser(xml_parser);
+  closeXMLScanner(xml_parser);
   free(mimetype_filecontents);
 }
 

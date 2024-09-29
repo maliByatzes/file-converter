@@ -1,5 +1,5 @@
-#ifndef __xml_parser_h
-#define __xml_parser_h
+#ifndef __xml_scanner_h
+#define __xml_scanner_h
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,8 +13,6 @@ typedef struct {
   char name[STRING_SIZE];
   char value[STRING_SIZE];
 } Attribute;
-
-// TODO: make a custom dynamic array...
 
 typedef struct {
   char name[STRING_SIZE];
@@ -31,16 +29,16 @@ typedef struct {
   size_t n_elements;
   size_t capacity;
   Element *elements;
-} XMLParser;
+} XMLScanner;
 
 Element *newElement();
 void closeElement(Element *);
 
-XMLParser *newXMLParser();
-void closeXMLParser(XMLParser *);
-void parseContent(XMLParser *);
-void processXMLProlog(XMLParser *);
-void processXMLElement(XMLParser *);
-char consumeChar(XMLParser *);
+XMLScanner *newXMLScanner();
+void closeXMLScanner(XMLScanner *);
+void parseContent(XMLScanner *);
+void processXMLProlog(XMLScanner *);
+void processXMLElement(XMLScanner *);
+char consumeChar(XMLScanner *);
 
 #endif
