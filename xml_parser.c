@@ -45,6 +45,15 @@ void closeXMLParser(XMLParser *xml_parser) {
   free(xml_parser);
 }
 
+void printFileContents(XMLParser *p) {
+  unsigned long index = p->position;
+  while (index < strlen(p->file_contents)) {
+    printf("%lu = '%c' -> %d\n", index, p->file_contents[index],
+           p->file_contents[index]);
+    index++;
+  }
+}
+
 void parseContent(XMLParser *p) {
   char curr_char;
 
@@ -62,9 +71,9 @@ void parseContent(XMLParser *p) {
         while (p->file_contents[p->position] != '>') {
           p->position++;
         }
+        p->position++;
         break;
       } else {
-        consumeChar(p);
         processXMLElement(p);
       }
       break;
@@ -73,13 +82,15 @@ void parseContent(XMLParser *p) {
       break;
     case ' ':
     case '\r':
-      p->position++;
+    case '\t':
       break;
     default:
       fprintf(stderr, "error: invalid character found.");
       exit(EXIT_FAILURE);
     }
   }
+
+  printf("stop");
 }
 
 void processXMLProlog(XMLParser *p) {
@@ -147,6 +158,7 @@ void processXMLProlog(XMLParser *p) {
 
 void processXMLElement(XMLParser *p) {
   unsigned long index = 0;
+  int found_closing = 0;
 
   Element *element = newElement();
   element->is_prolog = 0;
@@ -164,8 +176,7 @@ void processXMLElement(XMLParser *p) {
 
   memset(buf, 0, STRING_SIZE);
 
-  while (p->file_contents[p->position] != '>' ||
-         p->file_contents[p->position] != '/') {
+  while (p->file_contents[p->position] != '>') {
 
     while (p->file_contents[p->position] != ' ') {
 
@@ -192,26 +203,34 @@ void processXMLElement(XMLParser *p) {
 
       memset(buf, 0, STRING_SIZE);
 
-      if (p->file_contents[p->position + 1] != '>' ||
-          p->file_contents[p->position + 1] != '/')
-        p->position++;
-      else
+      if (p->file_contents[p->position + 1] == '>') {
         break;
+      } else if (p->file_contents[p->position + 1] == '/') {
+        found_closing = 1;
+        p->position++;
+        break;
+      } else {
+        p->position++;
+      }
     }
     p->position++;
   }
 
-  if (p->file_contents[p->position] == '/') {
+  if (found_closing) {
     // ERROR: check capacity == n_elements
     memcpy(&p->elements[p->n_elements], element, sizeof(Element));
     p->n_elements++;
     p->position++;
   } else {
     index = p->position;
+
     while (index < strlen(p->file_contents)) {
+
       if (p->file_contents[index] == '/') {
+
+        index++;
         while (p->file_contents[index] != '>') {
-          strncat(buf, &p->file_contents[p->position], sizeof(char));
+          strncat(buf, &p->file_contents[index], sizeof(char));
           index++;
         }
 
@@ -221,6 +240,7 @@ void processXMLElement(XMLParser *p) {
           p->n_elements++;
           break;
         }
+        memset(buf, 0, STRING_SIZE);
       }
       index++;
     }
