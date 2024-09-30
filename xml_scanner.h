@@ -33,6 +33,7 @@ typedef struct {
 
 Element *newElement();
 void closeElement(Element *);
+void deepCopyElement(Element *, Element *);
 
 XMLScanner *newXMLScanner();
 void closeXMLScanner(XMLScanner *);

@@ -61,6 +61,11 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
   parseContent(xml_parser);
 
   char *opf_filepath = findPackageContentLocation(xml_parser->elements, xml_parser->n_elements);
+  if (opf_filepath == NULL) {
+    fprintf(stderr, "error: opf file path not found.\n");
+    exit(EXIT_FAILURE);
+  }
+
   printf("opf_filepath: %s\n", opf_filepath);
   epub_ptr->opf_filepath = opf_filepath;
 

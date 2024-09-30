@@ -18,7 +18,25 @@ Element *newElement() {
 
 void closeElement(Element *element) {
   free(element->attributes);
-  free(element);
+  // free(element);
+}
+
+void deepCopyElement(Element *dest, Element *src) {
+  dest->n_attributes = src->n_attributes;
+  dest->capacity = src->capacity;
+  dest->is_prolog = src->is_prolog;
+  strncpy(dest->name, src->name, STRING_SIZE);
+
+  dest->attributes = (Attribute *)malloc(src->capacity * sizeof(Attribute));
+  if (dest->attributes == NULL) {
+    perror("malloc error");
+    exit(EXIT_FAILURE);
+  }
+
+  for (size_t i = 0; i < src->n_attributes; i++) {
+    strncpy(dest->attributes[i].name, src->attributes[i].name, STRING_SIZE);
+    strncpy(dest->attributes[i].value, src->attributes[i].value, STRING_SIZE);
+  }
 }
 
 XMLScanner *newXMLScanner() {
@@ -40,8 +58,11 @@ XMLScanner *newXMLScanner() {
 }
 
 void closeXMLScanner(XMLScanner *xml_parser) {
-  free(xml_parser->file_contents);
+  for (size_t i = 0; i < xml_parser->n_elements; i++) {
+    closeElement(&xml_parser->elements[i]);
+  }
   free(xml_parser->elements);
+  free(xml_parser->file_contents);
   free(xml_parser);
 }
 
@@ -165,16 +186,19 @@ void processXMLProlog(XMLScanner *p) {
       exit(EXIT_FAILURE);
     }
   }
-  memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+  // memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+  deepCopyElement(&p->elements[p->n_elements], element);
+  closeElement(element);
   p->n_elements++;
 
-  closeElement(element);
+  // closeElement(element);
   p->position += 3;
 }
 
 void processXMLElement(XMLScanner *p) {
   unsigned long index = 0;
   int found_closing = 0;
+  int attr_present = 1;
 
   Element *element = newElement();
   element->is_prolog = 0;
@@ -184,6 +208,12 @@ void processXMLElement(XMLScanner *p) {
 
   while (p->file_contents[p->position] != ' ') {
     if (p->file_contents[p->position] == '>') {
+      attr_present = 0;
+      break;
+    }
+
+    if (p->file_contents[p->position] == '/') {
+      attr_present = 0;
       found_closing = 1;
       break;
     }
@@ -196,7 +226,7 @@ void processXMLElement(XMLScanner *p) {
 
   memset(buf, 0, STRING_SIZE);
 
-  if (!(found_closing)) {
+  if (attr_present) {
     while (p->file_contents[p->position] != '>') {
 
       while (p->file_contents[p->position] != ' ') {
@@ -245,7 +275,9 @@ void processXMLElement(XMLScanner *p) {
       }
       p->position++;
     }
-  } else if (found_closing) {
+  }
+
+  if (found_closing) {
     if (p->capacity == p->n_elements) {
       p->capacity = p->capacity * 2;
       p->elements = (Element *)realloc(p->elements, p->capacity);
@@ -255,7 +287,9 @@ void processXMLElement(XMLScanner *p) {
         exit(EXIT_FAILURE);
       }
     }
-    memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+    // memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+    deepCopyElement(&p->elements[p->n_elements], element);
+    closeElement(element);
     p->n_elements++;
     p->position++;
   } else {
@@ -281,7 +315,9 @@ void processXMLElement(XMLScanner *p) {
               exit(EXIT_FAILURE);
             }
           }
-          memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+          // memcpy(&p->elements[p->n_elements], element, sizeof(Element));
+          deepCopyElement(&p->elements[p->n_elements], element);
+          closeElement(element);
           p->n_elements++;
           break;
         }
@@ -292,7 +328,7 @@ void processXMLElement(XMLScanner *p) {
   }
 
   memset(buf, 0, STRING_SIZE);
-  closeElement(element);
+  // closeElement(element);
   p->position++;
 }
 
