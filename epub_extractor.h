@@ -1,6 +1,7 @@
 #ifndef __epub_extractor_h
 #define __epub_extractor_h
 
+#include "xml_scanner.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +27,7 @@ char *getExtractDirectory(char *filepath);
 char *extractEpubZip(char *filepath, char *dest_dir);
 void confirmEpubFileExtension(char *filepath);
 void confirmEpubFileType(char *contents);
-char *findPackageContentLocation(char *tokens); // change parameter later
+char *findPackageContentLocation(Element *elements, size_t n_elements); // change parameter later
 char *extractContentsFromFile(char *filename);
 void str_cpyy(char *dest, char *src, size_t src_size);
 char *getFileName(char *filepath, char *filename);

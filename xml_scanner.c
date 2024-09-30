@@ -65,6 +65,7 @@ void parseContent(XMLScanner *p) {
       curr_char = p->file_contents[p->position];
       if (curr_char == '?') {
         consumeChar(p);
+        printf("processXMLProlog...\n");
         processXMLProlog(p);
       } else if (curr_char == '/') {
         while (p->file_contents[p->position] != '>') {
@@ -73,6 +74,7 @@ void parseContent(XMLScanner *p) {
         p->position++;
         break;
       } else {
+        printf("processXMLElement...\n");
         processXMLElement(p);
       }
       break;

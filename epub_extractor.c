@@ -1,5 +1,4 @@
 #include "epub_extractor.h"
-#include "xml_scanner.h"
 
 Epub *newEpub() {
   Epub *epub_ptr;
@@ -17,6 +16,7 @@ Epub *newEpub() {
 void closeEpub(Epub *epub) {
   free(epub->extracted_dir);
   free(epub->extracted_filepath);
+  free(epub->opf_filepath);
   free(epub);
 }
 
@@ -60,8 +60,9 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
   xml_parser->file_contents = container_filecontents;
   parseContent(xml_parser);
 
-  // char *opf_filepath = findPackageContentLocation(xml_parser->tokens);
-  // epub_ptr->opf_filepath = opf_filepath;
+  char *opf_filepath = findPackageContentLocation(xml_parser->elements, xml_parser->n_elements);
+  printf("opf_filepath: %s\n", opf_filepath);
+  epub_ptr->opf_filepath = opf_filepath;
 
   closeXMLScanner(xml_parser);
   free(mimetype_filecontents);
@@ -127,8 +128,30 @@ void confirmEpubFileType(char *contents) {
   }
 }
 
-char *findPackageContentLocation(char *tokens) {
-  (void) tokens;
+char *findPackageContentLocation(Element *elements, size_t n_elements) {
+  // Loop through elements
+  // Find the element->name == "rootfile"
+  // Loop through the element->attributes
+  // Find the attribute->name == "full-path"
+  // Return the value of that "full-path" attribute
+
+  char *opf_filepath = (char *)malloc(BUF_SIZE);
+  memset(opf_filepath, 0, BUF_SIZE);
+
+  for (size_t i = 0; i < n_elements; i++) {
+    if ((strcmp(elements[i].name, "rootfile")) == 0) {
+
+      for (size_t j = 0; j < elements[i].n_attributes; j++) {
+
+        if ((strcmp(elements[i].attributes[j].name, "full-path")) == 0) {
+          strncpy(opf_filepath, elements[i].attributes[j].value, BUF_SIZE);
+          return opf_filepath;
+        }
+      }
+    }
+  }
+
+  free(opf_filepath);
   return NULL;
 }
 
