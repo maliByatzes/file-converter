@@ -1,11 +1,8 @@
 cflags := -c -fsanitize=address -O2 -fno-omit-frame-pointer -Wall -Wextra
 cflags2 := -fsanitize=address -O2 -fno-omit-frame-pointer -Wall -Wextra
-objs := epub_extractor.o html_scanner.o dynamic_array.o xml_scanner.o xhtml_scanner.o pdf_extractor.o html_scanner.o fc.o
+objs := epub_extractor.o html_scanner.o xml_scanner.o xhtml_scanner.o pdf_extractor.o html_scanner.o fc.o
 
 all: f
-
-dynamic_array.o: dynamic_array.c
-	clang $(cflags) dynamic_array.c
 
 xml_scanner.o: xml_scanner.c
 	clang $(cflags) xml_scanner.c

@@ -123,7 +123,11 @@ void processXMLProlog(XMLScanner *p) {
         p->position++;
       }
 
-      // ERROR: check capacity == n_attributes
+      if (element->capacity == element->n_attributes) {
+        element->capacity = element->capacity * 2;
+        element->attributes =
+            (Attribute *)realloc(element->attributes, element->capacity);
+      }
       strncpy(element->attributes[element->n_attributes].name, buf,
               STRING_SIZE);
 
@@ -149,6 +153,10 @@ void processXMLProlog(XMLScanner *p) {
   }
 
   // ERROR: check capacity == n_elements
+  if (p->capacity == p->n_elements) {
+    p->capacity = p->capacity * 2;
+    p->elements = (Element *)realloc(p->elements, p->capacity);
+  }
   memcpy(&p->elements[p->n_elements], element, sizeof(Element));
   p->n_elements++;
 
@@ -168,7 +176,7 @@ void processXMLElement(XMLScanner *p) {
 
   while (p->file_contents[p->position] != ' ') {
     if (p->file_contents[p->position] == '>') {
-        break;
+      break;
     }
     strncat(buf, &p->file_contents[p->position], sizeof(char));
     p->position++;
