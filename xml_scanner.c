@@ -127,6 +127,11 @@ void processXMLProlog(XMLScanner *p) {
         element->capacity = element->capacity * 2;
         element->attributes =
             (Attribute *)realloc(element->attributes, element->capacity);
+
+        if (element->attributes == NULL) {
+          perror("realloc error");
+          exit(EXIT_FAILURE);
+        }
       }
       strncpy(element->attributes[element->n_attributes].name, buf,
               STRING_SIZE);
@@ -152,10 +157,14 @@ void processXMLProlog(XMLScanner *p) {
     p->position++;
   }
 
-  // ERROR: check capacity == n_elements
   if (p->capacity == p->n_elements) {
     p->capacity = p->capacity * 2;
     p->elements = (Element *)realloc(p->elements, p->capacity);
+
+    if (p->elements == NULL) {
+      perror("realloc error");
+      exit(EXIT_FAILURE);
+    }
   }
   memcpy(&p->elements[p->n_elements], element, sizeof(Element));
   p->n_elements++;
@@ -197,7 +206,16 @@ void processXMLElement(XMLScanner *p) {
         p->position++;
       }
 
-      // ERROR: check capacity == n_attributes
+      if (element->capacity == element->n_attributes) {
+        element->capacity = element->capacity * 2;
+        element->attributes =
+            (Attribute *)realloc(element->attributes, element->capacity);
+
+        if (element->attributes == NULL) {
+          perror("realloc error");
+          exit(EXIT_FAILURE);
+        }
+      }
       strncpy(element->attributes[element->n_attributes].name, buf,
               STRING_SIZE);
 
@@ -229,7 +247,15 @@ void processXMLElement(XMLScanner *p) {
   }
 
   if (found_closing) {
-    // ERROR: check capacity == n_elements
+    if (p->capacity == p->n_elements) {
+      p->capacity = p->capacity * 2;
+      p->elements = (Element *)realloc(p->elements, p->capacity);
+
+      if (p->elements == NULL) {
+        perror("realloc error");
+        exit(EXIT_FAILURE);
+      }
+    }
     memcpy(&p->elements[p->n_elements], element, sizeof(Element));
     p->n_elements++;
     p->position++;
@@ -247,7 +273,15 @@ void processXMLElement(XMLScanner *p) {
         }
 
         if ((strcmp(buf, element->name)) == 0) {
-          // ERROR: check capacity == n_elements
+          if (p->capacity == p->n_elements) {
+            p->capacity = p->capacity * 2;
+            p->elements = (Element *)realloc(p->elements, p->capacity);
+
+            if (p->elements == NULL) {
+              perror("realloc error");
+              exit(EXIT_FAILURE);
+            }
+          }
           memcpy(&p->elements[p->n_elements], element, sizeof(Element));
           p->n_elements++;
           break;
