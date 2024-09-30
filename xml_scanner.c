@@ -88,8 +88,6 @@ void parseContent(XMLScanner *p) {
       exit(EXIT_FAILURE);
     }
   }
-
-  printf("stop");
 }
 
 void processXMLProlog(XMLScanner *p) {
@@ -110,7 +108,6 @@ void processXMLProlog(XMLScanner *p) {
     exit(EXIT_FAILURE);
   }
   strncpy(element->name, buf, STRING_SIZE);
-  printf("element->name in PXP: %s\n", element->name);
 
   memset(buf, 0, STRING_SIZE);
 
@@ -185,6 +182,7 @@ void processXMLElement(XMLScanner *p) {
 
   while (p->file_contents[p->position] != ' ') {
     if (p->file_contents[p->position] == '>') {
+      found_closing = 1;
       break;
     }
     strncat(buf, &p->file_contents[p->position], sizeof(char));
@@ -193,60 +191,59 @@ void processXMLElement(XMLScanner *p) {
   p->position++;
 
   strncpy(element->name, buf, STRING_SIZE);
-  printf("element->name in PXE: %s\n", element->name);
 
   memset(buf, 0, STRING_SIZE);
 
-  while (p->file_contents[p->position] != '>') {
+  if (!(found_closing)) {
+    while (p->file_contents[p->position] != '>') {
 
-    while (p->file_contents[p->position] != ' ') {
+      while (p->file_contents[p->position] != ' ') {
 
-      while (p->file_contents[p->position] != '=') {
-        strncat(buf, &p->file_contents[p->position], sizeof(char));
-        p->position++;
-      }
+        while (p->file_contents[p->position] != '=') {
+          strncat(buf, &p->file_contents[p->position], sizeof(char));
+          p->position++;
+        }
 
-      if (element->capacity == element->n_attributes) {
-        element->capacity = element->capacity * 2;
-        element->attributes =
-            (Attribute *)realloc(element->attributes, element->capacity);
+        if (element->capacity == element->n_attributes) {
+          element->capacity = element->capacity * 2;
+          element->attributes =
+              (Attribute *)realloc(element->attributes, element->capacity);
 
-        if (element->attributes == NULL) {
-          perror("realloc error");
-          exit(EXIT_FAILURE);
+          if (element->attributes == NULL) {
+            perror("realloc error");
+            exit(EXIT_FAILURE);
+          }
+        }
+        strncpy(element->attributes[element->n_attributes].name, buf,
+                STRING_SIZE);
+
+        memset(buf, 0, STRING_SIZE);
+
+        p->position += 2;
+        while (p->file_contents[p->position] != '"') {
+          strncat(buf, &p->file_contents[p->position], sizeof(char));
+          p->position++;
+        }
+
+        strncpy(element->attributes[element->n_attributes].value, buf,
+                STRING_SIZE);
+        element->n_attributes++;
+
+        memset(buf, 0, STRING_SIZE);
+
+        if (p->file_contents[p->position + 1] == '>') {
+          break;
+        } else if (p->file_contents[p->position + 1] == '/') {
+          found_closing = 1;
+          p->position++;
+          break;
+        } else {
+          p->position++;
         }
       }
-      strncpy(element->attributes[element->n_attributes].name, buf,
-              STRING_SIZE);
-
-      memset(buf, 0, STRING_SIZE);
-
-      p->position += 2;
-      while (p->file_contents[p->position] != '"') {
-        strncat(buf, &p->file_contents[p->position], sizeof(char));
-        p->position++;
-      }
-
-      strncpy(element->attributes[element->n_attributes].value, buf,
-              STRING_SIZE);
-      element->n_attributes++;
-
-      memset(buf, 0, STRING_SIZE);
-
-      if (p->file_contents[p->position + 1] == '>') {
-        break;
-      } else if (p->file_contents[p->position + 1] == '/') {
-        found_closing = 1;
-        p->position++;
-        break;
-      } else {
-        p->position++;
-      }
+      p->position++;
     }
-    p->position++;
-  }
-
-  if (found_closing) {
+  } else if (found_closing) {
     if (p->capacity == p->n_elements) {
       p->capacity = p->capacity * 2;
       p->elements = (Element *)realloc(p->elements, p->capacity);
