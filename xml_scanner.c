@@ -86,7 +86,6 @@ void parseContent(XMLScanner *p) {
       curr_char = p->file_contents[p->position];
       if (curr_char == '?') {
         consumeChar(p);
-        printf("processXMLProlog...\n");
         processXMLProlog(p);
       } else if (curr_char == '/') {
         while (p->file_contents[p->position] != '>') {
@@ -95,7 +94,6 @@ void parseContent(XMLScanner *p) {
         p->position++;
         break;
       } else {
-        printf("processXMLElement...\n");
         processXMLElement(p);
       }
       break;
@@ -186,12 +184,11 @@ void processXMLProlog(XMLScanner *p) {
       exit(EXIT_FAILURE);
     }
   }
-  // memcpy(&p->elements[p->n_elements], element, sizeof(Element));
   deepCopyElement(&p->elements[p->n_elements], element);
-  closeElement(element);
+  free(element->attributes);
+  free(element);
   p->n_elements++;
 
-  // closeElement(element);
   p->position += 3;
 }
 
@@ -287,9 +284,9 @@ void processXMLElement(XMLScanner *p) {
         exit(EXIT_FAILURE);
       }
     }
-    // memcpy(&p->elements[p->n_elements], element, sizeof(Element));
     deepCopyElement(&p->elements[p->n_elements], element);
-    closeElement(element);
+    free(element->attributes);
+    free(element);
     p->n_elements++;
     p->position++;
   } else {
@@ -315,9 +312,9 @@ void processXMLElement(XMLScanner *p) {
               exit(EXIT_FAILURE);
             }
           }
-          // memcpy(&p->elements[p->n_elements], element, sizeof(Element));
           deepCopyElement(&p->elements[p->n_elements], element);
-          closeElement(element);
+          free(element->attributes);
+          free(element);
           p->n_elements++;
           break;
         }
@@ -328,7 +325,6 @@ void processXMLElement(XMLScanner *p) {
   }
 
   memset(buf, 0, STRING_SIZE);
-  // closeElement(element);
   p->position++;
 }
 

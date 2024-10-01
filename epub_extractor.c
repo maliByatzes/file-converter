@@ -50,7 +50,6 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
 
   XMLScanner *xml_parser = newXMLScanner();
 
-  printf("extracted_filepath: %s\n", extracted_filepath);
   str_cpyy(buf, extracted_filepath, strlen(extracted_filepath));
 
   strncat(buf, "/META-INF/container.xml", 24);
@@ -66,11 +65,13 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
     exit(EXIT_FAILURE);
   }
 
-  printf("opf_filepath: %s\n", opf_filepath);
-  epub_ptr->opf_filepath = opf_filepath;
+  epub_ptr->opf_filepath = (char *)malloc(BUF_SIZE);
+  memset(epub_ptr->opf_filepath, 0, BUF_SIZE);
+  snprintf(epub_ptr->opf_filepath, BUF_SIZE, "%s/%s", epub_ptr->extracted_filepath, opf_filepath);
 
   closeXMLScanner(xml_parser);
   free(mimetype_filecontents);
+  free(opf_filepath);
 }
 
 char *getExtractDirectory(char *filepath) {
