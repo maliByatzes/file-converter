@@ -16,6 +16,7 @@ typedef struct {
 
 typedef struct {
   char name[STRING_SIZE];
+  char *value;
   size_t n_attributes;
   size_t capacity;
   Attribute *attributes;

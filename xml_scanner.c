@@ -18,7 +18,6 @@ Element *newElement() {
 
 void closeElement(Element *element) {
   free(element->attributes);
-  // free(element);
 }
 
 void deepCopyElement(Element *dest, Element *src) {
@@ -79,30 +78,40 @@ void parseContent(XMLScanner *p) {
   char curr_char;
 
   while (p->position < strlen(p->file_contents)) {
+    printf("\nNew iteration....\n");
+    printf("p->n_elements: %zu\n", p->n_elements);
+
     char c = consumeChar(p);
+    printf("c: %c => %d\n", c, c);
 
     switch (c) {
     case '<':
       curr_char = p->file_contents[p->position];
+      printf("curr_char: %c => %d\n", curr_char, curr_char);
       if (curr_char == '?') {
         consumeChar(p);
+        printf("\nProcessing XML Prolog....\n");
         processXMLProlog(p);
       } else if (curr_char == '/') {
+        printf("\nProcessing chars till '>'...\n");
         while (p->file_contents[p->position] != '>') {
           p->position++;
         }
         p->position++;
         break;
       } else {
+        printf("\nProcessing XML Element...\n");
         processXMLElement(p);
       }
       break;
     case '\n':
+      printf("\nProcessing LF...\n");
       p->line++;
       break;
     case ' ':
     case '\r':
     case '\t':
+      printf("\nProcessing SPC, CR, TAB...\n");
       break;
     default:
       fprintf(stderr, "error: invalid character found.");
@@ -129,6 +138,7 @@ void processXMLProlog(XMLScanner *p) {
     exit(EXIT_FAILURE);
   }
   strncpy(element->name, buf, STRING_SIZE);
+  printf("element->name: %s\n", element->name);
 
   memset(buf, 0, STRING_SIZE);
 
@@ -153,6 +163,7 @@ void processXMLProlog(XMLScanner *p) {
       }
       strncpy(element->attributes[element->n_attributes].name, buf,
               STRING_SIZE);
+      printf("element->attributes[element->n_attributes].name: %s\n", element->attributes[element->n_attributes].name);
 
       memset(buf, 0, STRING_SIZE);
 
@@ -164,7 +175,10 @@ void processXMLProlog(XMLScanner *p) {
 
       strncpy(element->attributes[element->n_attributes].value, buf,
               STRING_SIZE);
+      printf("element->attributes[element->n_attributes].value: %s\n", element->attributes[element->n_attributes].value);
       element->n_attributes++;
+      printf("Added a new attribute...\n");
+      printf("n_attributes: %zu\n", element->n_attributes);
       memset(buf, 0, STRING_SIZE);
 
       if (p->file_contents[p->position + 1] != '?')
@@ -185,9 +199,12 @@ void processXMLProlog(XMLScanner *p) {
     }
   }
   deepCopyElement(&p->elements[p->n_elements], element);
+  printf("Added a new element...\n");
+  printf("p->element[p->n_elements].name: %s\n", p->elements[p->n_elements].name);
   free(element->attributes);
   free(element);
   p->n_elements++;
+  printf("n_elements: %zu\n", p->n_elements);
 
   p->position += 3;
 }
@@ -220,6 +237,7 @@ void processXMLElement(XMLScanner *p) {
   p->position++;
 
   strncpy(element->name, buf, STRING_SIZE);
+  printf("element->name: %s\n", element->name);
 
   memset(buf, 0, STRING_SIZE);
 
@@ -245,6 +263,7 @@ void processXMLElement(XMLScanner *p) {
         }
         strncpy(element->attributes[element->n_attributes].name, buf,
                 STRING_SIZE);
+        printf("element->attributes[element->n_attributes].name: %s\n", element->attributes[element->n_attributes].name);
 
         memset(buf, 0, STRING_SIZE);
 
@@ -256,7 +275,10 @@ void processXMLElement(XMLScanner *p) {
 
         strncpy(element->attributes[element->n_attributes].value, buf,
                 STRING_SIZE);
+        printf("element->attributes[element->n_attributes].value: %s\n", element->attributes[element->n_attributes].value);
         element->n_attributes++;
+        printf("Added a new attribute...\n");
+        printf("n_attributes: %zu\n", element->n_attributes);
 
         memset(buf, 0, STRING_SIZE);
 
@@ -267,6 +289,15 @@ void processXMLElement(XMLScanner *p) {
           p->position++;
           break;
         } else {
+          p->position++;
+        }
+        printf("checking %c => %d for SPC\n", p->file_contents[p->position], p->file_contents[p->position]);
+
+        while (p->file_contents[p->position] == '\n' ||
+            p->file_contents[p->position] == '\r' ||
+            p->file_contents[p->position] == '\t'
+        ) {
+          printf("Encountered a LF or CR or TAB\n");
           p->position++;
         }
       }
@@ -285,9 +316,12 @@ void processXMLElement(XMLScanner *p) {
       }
     }
     deepCopyElement(&p->elements[p->n_elements], element);
+    printf("Added a new element...\n");
+    printf("p->element[p->n_elements].name: %s\n", p->elements[p->n_elements].name);
     free(element->attributes);
     free(element);
     p->n_elements++;
+    printf("n_elements: %zu\n", p->n_elements);
     p->position++;
   } else {
     index = p->position;
@@ -313,9 +347,12 @@ void processXMLElement(XMLScanner *p) {
             }
           }
           deepCopyElement(&p->elements[p->n_elements], element);
+          printf("Added a new element...\n");
+          printf("p->element[p->n_elements].name: %s\n", p->elements[p->n_elements].name);
           free(element->attributes);
           free(element);
           p->n_elements++;
+          printf("n_elements: %zu\n", p->n_elements);
           break;
         }
         memset(buf, 0, STRING_SIZE);

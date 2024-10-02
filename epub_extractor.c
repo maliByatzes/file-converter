@@ -235,14 +235,12 @@ void processOPFFile(Epub *epub_ptr) {
     free(buffer);
     exit(EXIT_FAILURE);
   }
-
-  // printf("%s\n", buffer);
+  fclose(f);
 
   XMLScanner *s = newXMLScanner();
 
   s->file_contents = buffer;
   parseContent(s);
 
-  fclose(f);
   free(buffer);
 }
