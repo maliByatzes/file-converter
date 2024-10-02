@@ -1,4 +1,6 @@
 #include "epub_extractor.h"
+#include "xml_scanner.h"
+#include <string.h>
 
 Epub *newEpub() {
   Epub *epub_ptr;
@@ -59,7 +61,8 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
   xml_parser->file_contents = container_filecontents;
   parseContent(xml_parser);
 
-  char *opf_filepath = findPackageContentLocation(xml_parser->elements, xml_parser->n_elements);
+  char *opf_filepath =
+      findPackageContentLocation(xml_parser->elements, xml_parser->n_elements);
   if (opf_filepath == NULL) {
     fprintf(stderr, "error: opf file path not found.\n");
     exit(EXIT_FAILURE);
@@ -67,7 +70,8 @@ void extractEpubFile(Epub *epub_ptr, char *file_path, char *result_filename) {
 
   epub_ptr->opf_filepath = (char *)malloc(BUF_SIZE);
   memset(epub_ptr->opf_filepath, 0, BUF_SIZE);
-  snprintf(epub_ptr->opf_filepath, BUF_SIZE, "%s/%s", epub_ptr->extracted_filepath, opf_filepath);
+  snprintf(epub_ptr->opf_filepath, BUF_SIZE, "%s/%s",
+           epub_ptr->extracted_filepath, opf_filepath);
 
   closeXMLScanner(xml_parser);
   free(mimetype_filecontents);
@@ -135,12 +139,6 @@ void confirmEpubFileType(char *contents) {
 }
 
 char *findPackageContentLocation(Element *elements, size_t n_elements) {
-  // Loop through elements
-  // Find the element->name == "rootfile"
-  // Loop through the element->attributes
-  // Find the attribute->name == "full-path"
-  // Return the value of that "full-path" attribute
-
   char *opf_filepath = (char *)malloc(BUF_SIZE);
   memset(opf_filepath, 0, BUF_SIZE);
 
@@ -202,4 +200,49 @@ char *getFileName(char *filepath, char *filename) {
     token = strtok(NULL, "/");
   }
   return filename;
+}
+
+void processOPFFile(Epub *epub_ptr) {
+  FILE *f;
+  char temp[BUF_SIZE];
+  size_t bytes_read;
+  size_t total_bytes_read = 0;
+
+  f = fopen(epub_ptr->opf_filepath, "rb");
+  if (f == NULL) {
+    perror("fopen error");
+    exit(EXIT_FAILURE);
+  }
+
+  memset(temp, 0, BUF_SIZE);
+  while ((bytes_read = fread(temp, 1, sizeof(temp), f)) > 0) {
+    total_bytes_read += bytes_read;
+  }
+  rewind(f);
+
+  char *buffer = (char *)malloc(total_bytes_read + 1);
+  memset(buffer, 0, total_bytes_read + 1);
+  memset(temp, 0, BUF_SIZE);
+
+  while ((fgets(temp, BUF_SIZE, f)) != NULL) {
+    strncat(buffer, temp, BUF_SIZE + 1);
+    memset(temp, 0, BUF_SIZE);
+  }
+
+  if (ferror(f)) {
+    fprintf(stderr, "error indicator set");
+    fclose(f);
+    free(buffer);
+    exit(EXIT_FAILURE);
+  }
+
+  // printf("%s\n", buffer);
+
+  XMLScanner *s = newXMLScanner();
+
+  s->file_contents = buffer;
+  parseContent(s);
+
+  fclose(f);
+  free(buffer);
 }

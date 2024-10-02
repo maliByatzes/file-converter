@@ -32,4 +32,6 @@ char *extractContentsFromFile(char *filename);
 void str_cpyy(char *dest, char *src, size_t src_size);
 char *getFileName(char *filepath, char *filename);
 
+void processOPFFile(Epub *epub_ptr);
+
 #endif
