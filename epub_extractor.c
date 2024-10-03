@@ -237,10 +237,10 @@ void processOPFFile(Epub *epub_ptr) {
   }
   fclose(f);
 
-  XMLScanner *s = newXMLScanner();
+  // XMLScanner *s = newXMLScanner();
 
-  s->file_contents = buffer;
-  parseContent(s);
+  // s->file_contents = buffer;
+  // parseContent(s);
 
   free(buffer);
 }

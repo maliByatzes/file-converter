@@ -291,6 +291,8 @@ void processXMLElement(XMLScanner *p) {
         } else {
           p->position++;
         }
+
+
         printf("checking %c => %d for SPC\n", p->file_contents[p->position], p->file_contents[p->position]);
 
         while (p->file_contents[p->position] == '\n' ||
@@ -316,7 +318,7 @@ void processXMLElement(XMLScanner *p) {
       }
     }
     deepCopyElement(&p->elements[p->n_elements], element);
-    printf("Added a new element...\n");
+    printf("Added a new element...(inside found_closing)\n");
     printf("p->element[p->n_elements].name: %s\n", p->elements[p->n_elements].name);
     free(element->attributes);
     free(element);
@@ -337,6 +339,7 @@ void processXMLElement(XMLScanner *p) {
         }
 
         if ((strcmp(buf, element->name)) == 0) {
+          found_closing = 1;
           if (p->capacity == p->n_elements) {
             p->capacity = p->capacity * 2;
             p->elements = (Element *)realloc(p->elements, p->capacity);
@@ -347,7 +350,7 @@ void processXMLElement(XMLScanner *p) {
             }
           }
           deepCopyElement(&p->elements[p->n_elements], element);
-          printf("Added a new element...\n");
+          printf("Added a new element...(inside not found closing)\n");
           printf("p->element[p->n_elements].name: %s\n", p->elements[p->n_elements].name);
           free(element->attributes);
           free(element);
@@ -361,7 +364,27 @@ void processXMLElement(XMLScanner *p) {
     }
   }
 
+  printf("\nPosition: %zu\n", p->position);
+  printf("char at pos: %c => %d\n", p->file_contents[p->position], p->file_contents[p->position]);
+
+  // Consume every char from > to </{element->name}>
+
   memset(buf, 0, STRING_SIZE);
+  char inside_value[2048];
+  memset(inside_value, 0, 2048);
+
+  if (p->file_contents[p->position] == '>') {
+    while (p->position < strlen(p->file_contents)) {
+      if (p->file_contents[p->position] == '/') {
+        p->position++;
+        while (p->file_contents[p->position] != '>') {
+                }
+      }
+
+      p->position++;
+    }
+  }
+
   p->position++;
 }
 
