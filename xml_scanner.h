@@ -120,6 +120,9 @@ bool setValueBool(xml_attribute *, bool /* rhs */);
 xml_attribute next_attribute(const xml_attribute *);
 xml_attribute previous_attribute(const xml_attribute *);
 
+size_t hashValue(const xml_attribute *);
+struct s_xml_attribute *internalValue(const xml_attribute *);
+
 #endif
 
 typedef struct {
