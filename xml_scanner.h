@@ -17,7 +17,7 @@
 typedef const unsigned int CUI;
 
 // Tree node types
-enum xm_node_type {
+enum xml_node_type {
   node_null,
   node_document,
   node_element,
@@ -122,6 +122,19 @@ xml_attribute previous_attribute(const xml_attribute *);
 
 size_t hashValue(const xml_attribute *);
 struct s_xml_attribute *internalValue(const xml_attribute *);
+
+/*************************************************************
+ *
+ * XML Node struct
+ *
+ *************************************************************/
+
+typedef struct {
+  s_xml_node *root;
+} xml_node;
+
+bool empty(const xml_node *);
+xml_node_type type(const xml_node *);
 
 #endif
 
