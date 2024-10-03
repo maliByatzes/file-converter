@@ -12,6 +12,8 @@
 
 #if defined(_NEW_API)
 
+#include <stdbool.h>
+
 typedef const unsigned int CUI;
 
 // Tree node types
@@ -29,6 +31,8 @@ enum xm_node_type {
 
 // Parsing options
 
+// Make this an enum
+/*
 CUI parse_minimal = 0x0000;
 CUI parse_pi = 0x0001;
 CUI parse_comments = 0x0002;
@@ -47,6 +51,7 @@ CUI parse_embed_pcdata = 0x2000;
 CUI parse_merge_pcdata = 0x4000;
 CUI parse_default = parse_cdata | parse_escapes | parse_wconv_attribute | parse_eol;
 CUI parse_full = parse_default | parse_pi | parse_comments | parse_declaration | parse_doctype;
+*/
 
 // Encoding options for xml docs
 enum xml_encoding {
@@ -64,14 +69,56 @@ enum xml_encoding {
 
 // TODO: Declare formatting flags
 
-struct xml_attribute;
-struct xml_node; // xml_node_2
+struct s_xml_attribute;
+struct s_xml_node; // xml_node_2
 struct xml_node_iterator;
 struct xml_attribute_iterator;
 struct xml_named_node_iterator;
 struct xml_tree_walker;
 struct xml_parse_result;
+struct xml_node;
 struct xml_text;
+
+/*************************************************************
+ *
+ * XML Attribute struct
+ *
+ *************************************************************/
+
+typedef struct {
+  struct s_xml_attribute *_attr;
+} xml_attribute;
+
+// struct xml_attribute methods
+bool empty(const xml_attribute *);
+
+const char *name(const xml_attribute *);
+const char *value(const xml_attribute *);
+const char *asString(const xml_attribute *, const char* /* def */);
+
+int asInt(const xml_attribute *, int /* def */);
+unsigned int asUint(const xml_attribute *, unsigned int /* def */);
+double asDouble(const xml_attribute, double /* def */);
+float asFloat(const xml_attribute *, float /* def */);
+bool asBool(const xml_attribute *, bool /* def */);
+
+bool setName(xml_attribute *, const char */* rhs */);
+bool setNameWithSize(xml_attribute *, const char */* rhs */, size_t /* size */);
+bool setValue(xml_attribute *, const char */* rhs */);
+bool setValueWithSize(xml_attribute *, const char */* rhs */, size_t /* size */);
+
+bool setValueInt(xml_attribute *, int /* rhs */);
+bool setValueUint(xml_attribute *, unsigned int /* rhs */);
+bool setValueLong(xml_attribute *, long /* rhs */);
+bool setValueULong(xml_attribute *, unsigned long /* rhs */);
+bool setValueDouble(xml_attribute *, double /* rhs */);
+bool setValueDoubleP(xml_attribute *, double /* rhs */, int /* precision */);
+bool setValueFloat(xml_attribute *, float /* rhs */);
+bool setValueFloatP(xml_attribute *, float /* rhs */, int /* precision */);
+bool setValueBool(xml_attribute *, bool /* rhs */);
+
+xml_attribute next_attribute(const xml_attribute *);
+xml_attribute previous_attribute(const xml_attribute *);
 
 #endif
 
