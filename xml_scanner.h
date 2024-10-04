@@ -37,7 +37,7 @@ typedef const unsigned int CUI;
 #define PARSE_FULL ((CUI) PARSE_DEFAULT | PARSE_PI | PARSE_COMMENTS | PARSE_DECLARATION | PARSE_DOCTYPE)
 
 // Tree node types
-enum xml_node_type {
+typedef enum {
   node_null,
   node_document,
   node_element,
@@ -47,11 +47,11 @@ enum xml_node_type {
   node_pi,
   node_declaration,
   node_doctype
-};
+} xml_node_type;
 
 
 // Encoding options for xml docs
-enum xml_encoding {
+typedef enum {
   encoding_auto,
   encoding_utf8,
   encoding_utf16_le,
@@ -62,12 +62,12 @@ enum xml_encoding {
   encoding_utf32,
   encoding_wchar,
   encoding_latin1
-};
+} xml_encoding;
 
 // TODO: Declare formatting flags
 
 struct s_xml_attribute;
-struct s_xml_node; // xml_node_2
+struct s_xml_node;
 struct xml_node_iterator;
 struct xml_attribute_iterator;
 struct xml_named_node_iterator;
@@ -88,6 +88,7 @@ typedef struct {
 
 // struct xml_attribute methods
 bool emptyAttr(const xml_attribute *);
+bool validAttr(const xml_attribute *);
 
 const char *getNameAttr(const xml_attribute *);
 const char *getValueAttr(const xml_attribute *);
@@ -131,12 +132,15 @@ typedef struct {
 } xml_node;
 
 bool emptyNode(const xml_node *);
-enum xml_node_type type(const xml_node *);
+bool validNode(const xml_node *);
+xml_node_type type(const xml_node *);
 const char *getNameNode(const xml_node *);
 const char *getValueNode(const xml_node *);
 
 xml_attribute firstAttribute(const xml_node *);
 xml_attribute lastAttribute(const xml_node *);
+xml_node getFirstChild(const xml_node *);
+xml_node getLasChild(const xml_node *);
 xml_node nextSibling(const xml_node *);
 xml_node previousSibling(const xml_node *);
 xml_node getParentNode(const xml_node *);
@@ -151,10 +155,10 @@ xml_attribute getAttributeNodeHint(const xml_node *, xml_attribute *hint);
 const char *getChidValueNode(const xml_node *);
 const char *getChileValueNodeWithName(const xml_node *, const char */* name */);
 
-bool setNameNode(xml_node *, const char */* name */);
-bool setNameNodeWithSize(xml_node *, const char */* name */, size_t /* size */);
-bool setValueNode(xml_node *, const char */* name */);
-bool setValueNodeWithSize(xml_node *, const char */* name */, size_t /* size */);
+bool setNameNode(xml_node *, const char */* rhs */);
+bool setNameNodeWithSize(xml_node *, const char */* rhs */, size_t /* size */);
+bool setValueNode(xml_node *, const char */* rhs */);
+bool setValueNodeWithSize(xml_node *, const char */* rhs */, size_t /* size */);
 
 xml_attribute appendAttributeNode(xml_node *, const char */* name */);
 xml_attribute prependAttributeNode(xml_node *, const char */* name */);
@@ -165,6 +169,93 @@ xml_attribute appendCopyNode(xml_node *, const xml_attribute */* proto */);
 xml_attribute prependCopyNode(xml_node *, const xml_attribute */* proto */);
 xml_attribute insertCopyAfterNode(xml_node *, const xml_attribute */* proto */, const xml_attribute */* attr */);
 xml_attribute insertCopyBeforeNode(xml_node *, const xml_attribute */* proto */, const xml_attribute */* attr */);
+
+xml_node appendChildNode(xml_node *, xml_node_type /* type */);
+xml_node prependChildNode(xml_node *, xml_node_type /* type */);
+xml_node insertChildAfterNode(xml_node *, xml_node_type /* type */, const xml_node */* node */);
+xml_node insertChildBeforeNode(xml_node *, xml_node_type /* type */, const xml_node */* node */);
+
+xml_node appendChildNameNode(xml_node *, const char */* name */);
+xml_node prependChildNameNode(xml_node *, const char */* name */);
+xml_node insertChildNameAfterNode(xml_node *, const char */* name */, const xml_node */* node */);
+xml_node insertChildNameBeforeNode(xml_node *, const char */* name */, const xml_node */* node */);
+
+xml_node appendCopyProtoNode(xml_node *, const xml_node */* proto */);
+xml_node prependCopyProtoNode(xml_node *, const xml_node */* proto */);
+xml_node insertCopyProtoAfterNode(xml_node *, const xml_node */* proto */, const xml_node */* node */);
+xml_node insertCopyProtoBeforeNode(xml_node *, const xml_node */* proto */, const xml_node */* node */);
+
+xml_node appendMoveNode(xml_node *, const xml_node */* moved */);
+xml_node prependMoveNode(xml_node *, const xml_node */* moved */);
+xml_node insertMoveAfterNode(xml_node *, const xml_node */* moved */, const xml_node */* node */);
+xml_node insertMoveBeforeNode(xml_node *, const xml_node */* moved */, const xml_node */* node */);
+
+bool removeAttributeNode(xml_node *, const xml_attribute */* attr */);
+bool removeAttributeNameNode(xml_node *, const char */* name */);
+bool removeAttributesNode(xml_node *);
+bool removeChildNode(xml_node *, const xml_node */* node */);
+bool removeChildNameNode(xml_node *, const char */* name */);
+bool removeAllChildren(xml_node *);
+
+struct xml_parse_result append_buffer(xml_node *, const void */* contents */, size_t /* size */, unsigned int /* options */, xml_encoding /* encoding */);
+
+typedef bool (*PredicateAttr)(xml_attribute attr);
+
+inline xml_attribute findAttributeNode(const xml_node *n, PredicateAttr pred) {
+  if (!n->root) {
+    return (xml_attribute){};
+  }
+
+  // IDK abt this...
+  for (xml_attribute attr = firstAttribute(n); validAttr(&attr); attr = nextAttribute(&attr)) {
+    if (pred(attr)) {
+      return attr;
+    }
+  }
+
+  return (xml_attribute){};
+}
+
+typedef bool (*PredicateNode)(xml_node node);
+
+inline xml_node findChildNode(const xml_node *n, PredicateNode pred) {
+  if (!n->root) return (xml_node){};
+
+  for (xml_node node = getFirstChild(n); validNode(&node); node = nextSibling(&node)) {
+    if (pred(node))
+      return node;
+  }
+
+  return (xml_node){};
+}
+
+inline xml_node findNode(const xml_node *n, PredicateNode pred) {
+  if (!n->root) return (xml_node){};
+
+  xml_node cur = getFirstChild(n);
+
+  while (cur.root && cur.root != n->root) {
+    if (pred(cur)) return cur;
+
+    xml_node firstChildNode = getFirstChild(&cur);
+    xml_node nextSiblingNode = nextSibling(&cur);
+    if (validNode(&firstChildNode)) {
+      cur = firstChildNode;
+    } else if (validNode(&nextSiblingNode)) {
+      cur = nextSiblingNode;
+    } else {
+      while (!validNode(&nextSiblingNode) && cur.root != n->root) {
+        cur = getParentNode(&cur);
+      }
+
+      if (cur.root != n->root) {
+        cur = nextSibling(&cur);
+      }
+    }
+  }
+
+  return (xml_node){};
+}
 
 #endif
 
