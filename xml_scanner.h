@@ -257,6 +257,12 @@ inline xml_node findNode(const xml_node *n, PredicateNode pred) {
   return (xml_node){};
 }
 
+xml_node findChildByAttrValueNode(const xml_node *, const char */* name */, const char */* attr_name */, const char */* attr_value */);
+xml_node findChildByAttrNode(const xml_node *, const char */* name */, const char */* attr_value */);
+xml_node firstElementByPathNode(const xml_node *, const char */* path */, char /* delimeter */);
+
+bool traverseNode(xml_node *, struct xml_tree_walker */* walker */);
+
 #endif
 
 typedef struct {
