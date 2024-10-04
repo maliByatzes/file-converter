@@ -89,9 +89,9 @@ typedef struct {
 // struct xml_attribute methods
 bool emptyAttr(const xml_attribute *);
 
-const char *name(const xml_attribute *);
-const char *value(const xml_attribute *);
-const char *asString(const xml_attribute *, const char* /* def */);
+const char *getNameAttr(const xml_attribute *);
+const char *getValueAttr(const xml_attribute *);
+const char *asStringAttr(const xml_attribute *, const char* /* def */);
 
 int asInt(const xml_attribute *, int /* def */);
 unsigned int asUint(const xml_attribute *, unsigned int /* def */);
@@ -99,10 +99,10 @@ double asDouble(const xml_attribute, double /* def */);
 float asFloat(const xml_attribute *, float /* def */);
 bool asBool(const xml_attribute *, bool /* def */);
 
-bool setName(xml_attribute *, const char */* rhs */);
-bool setNameWithSize(xml_attribute *, const char */* rhs */, size_t /* size */);
-bool setValue(xml_attribute *, const char */* rhs */);
-bool setValueWithSize(xml_attribute *, const char */* rhs */, size_t /* size */);
+bool setNameAttr(xml_attribute *, const char */* rhs */);
+bool setNameWithSizeAttr(xml_attribute *, const char */* rhs */, size_t /* size */);
+bool setValueAttr(xml_attribute *, const char */* rhs */);
+bool setValueWithSizeAttr(xml_attribute *, const char */* rhs */, size_t /* size */);
 
 bool setValueInt(xml_attribute *, int /* rhs */);
 bool setValueUint(xml_attribute *, unsigned int /* rhs */);
@@ -114,8 +114,8 @@ bool setValueFloat(xml_attribute *, float /* rhs */);
 bool setValueFloatP(xml_attribute *, float /* rhs */, int /* precision */);
 bool setValueBool(xml_attribute *, bool /* rhs */);
 
-xml_attribute next_attribute(const xml_attribute *);
-xml_attribute previous_attribute(const xml_attribute *);
+xml_attribute nextAttribute(const xml_attribute *);
+xml_attribute previousAttribute(const xml_attribute *);
 
 size_t hashValue(const xml_attribute *);
 struct s_xml_attribute *internalValue(const xml_attribute *);
@@ -132,6 +132,39 @@ typedef struct {
 
 bool emptyNode(const xml_node *);
 enum xml_node_type type(const xml_node *);
+const char *getNameNode(const xml_node *);
+const char *getValueNode(const xml_node *);
+
+xml_attribute firstAttribute(const xml_node *);
+xml_attribute lastAttribute(const xml_node *);
+xml_node nextSibling(const xml_node *);
+xml_node previousSibling(const xml_node *);
+xml_node getParentNode(const xml_node *);
+xml_node getRootNode(const xml_node *);
+struct xml_text getTextNode(const xml_node *);
+
+xml_node getChildNode(const xml_node *, const char */* name */);
+xml_attribute getAttributeNode(const xml_node *, const char */* name */);
+xml_node getNextSiblingNode(const xml_node *, const char */* name */);
+xml_node getPreviousSiblingNode(const xml_node *, const char */* name */);
+xml_attribute getAttributeNodeHint(const xml_node *, xml_attribute *hint);
+const char *getChidValueNode(const xml_node *);
+const char *getChileValueNodeWithName(const xml_node *, const char */* name */);
+
+bool setNameNode(xml_node *, const char */* name */);
+bool setNameNodeWithSize(xml_node *, const char */* name */, size_t /* size */);
+bool setValueNode(xml_node *, const char */* name */);
+bool setValueNodeWithSize(xml_node *, const char */* name */, size_t /* size */);
+
+xml_attribute appendAttributeNode(xml_node *, const char */* name */);
+xml_attribute prependAttributeNode(xml_node *, const char */* name */);
+xml_attribute insertAttributeAfterNode(xml_node *, const char */* name */, const xml_attribute */* attr */);
+xml_attribute insertAttributeBeforeNode(xml_node *, const char */* name */, const xml_attribute */* attr */);
+
+xml_attribute appendCopyNode(xml_node *, const xml_attribute */* proto */);
+xml_attribute prependCopyNode(xml_node *, const xml_attribute */* proto */);
+xml_attribute insertCopyAfterNode(xml_node *, const xml_attribute */* proto */, const xml_attribute */* attr */);
+xml_attribute insertCopyBeforeNode(xml_node *, const xml_attribute */* proto */, const xml_attribute */* attr */);
 
 #endif
 
