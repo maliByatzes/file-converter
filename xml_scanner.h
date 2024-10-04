@@ -16,6 +16,26 @@
 
 typedef const unsigned int CUI;
 
+// Parsing options
+#define PARSE_MINIMAL ((CUI) 0x0000)
+#define PARSE_PI ((CUI) 0x0001)
+#define PARSE_COMMENTS ((CUI) 0x0002)
+#define PARSE_CDATA ((CUI) 0X0004)
+#define PARSE_WS_PCDATA ((CUI) 0X0008) // SP && MM
+#define PARSE_ESCAPES ((CUI) 0X0010)
+#define PARSE_EOL ((CUI) 0X0020)
+#define PARSE_WCONV_ATTRIBUTE ((CUI) 0X0040)
+#define PARSE_WNORM_ATTRIBUTE ((CUI) 0X0080)
+#define PARSE_DECLARATION ((CUI) 0X0100)
+#define PARSE_DOCTYPE ((CUI) 0X0200)
+#define PARSE_WS_PCDATA_SINGLE ((CUI) 0X0400) // SP & MM
+#define PARSE_TRIM_PCDATA ((CUI) 0X0800)
+#define PARSE_FRAGMENT ((CUI) 0X1000)
+#define PARSE_EMBED_PCDATA ((CUI) 0X2000)
+#define PARSE_MERGE_PCDATA ((CUI) 0X4000)
+#define PARSE_DEFAULT ((CUI) PARSE_CDATA | PARSE_ESCAPES | PARSE_WCONV_ATTRIBUTE | PARSE_EOL)
+#define PARSE_FULL ((CUI) PARSE_DEFAULT | PARSE_PI | PARSE_COMMENTS | PARSE_DECLARATION | PARSE_DOCTYPE)
+
 // Tree node types
 enum xml_node_type {
   node_null,
@@ -29,29 +49,6 @@ enum xml_node_type {
   node_doctype
 };
 
-// Parsing options
-
-// Make this an enum
-/*
-CUI parse_minimal = 0x0000;
-CUI parse_pi = 0x0001;
-CUI parse_comments = 0x0002;
-CUI parse_cdata = 0x0004;
-CUI parse_ws_pcdata = 0x0008; // SP && MM
-CUI parse_escapes = 0x0010;
-CUI parse_eol = 0x0020;
-CUI parse_wconv_attribute = 0x0040;
-CUI parse_wnorm_attribute = 0x0080;
-CUI parse_declaration = 0x0100;
-CUI parse_doctype = 0x0200;
-CUI parse_ws_pcdata_single = 0x0400;// SP & MM
-CUI parse_trim_pcdata = 0x0800;
-CUI parse_fragment = 0x1000;
-CUI parse_embed_pcdata = 0x2000;
-CUI parse_merge_pcdata = 0x4000;
-CUI parse_default = parse_cdata | parse_escapes | parse_wconv_attribute | parse_eol;
-CUI parse_full = parse_default | parse_pi | parse_comments | parse_declaration | parse_doctype;
-*/
 
 // Encoding options for xml docs
 enum xml_encoding {
@@ -76,7 +73,7 @@ struct xml_attribute_iterator;
 struct xml_named_node_iterator;
 struct xml_tree_walker;
 struct xml_parse_result;
-struct xml_node;
+// struct xml_node;
 struct xml_text;
 
 /*************************************************************
@@ -90,7 +87,7 @@ typedef struct {
 } xml_attribute;
 
 // struct xml_attribute methods
-bool empty(const xml_attribute *);
+bool emptyAttr(const xml_attribute *);
 
 const char *name(const xml_attribute *);
 const char *value(const xml_attribute *);
@@ -130,11 +127,11 @@ struct s_xml_attribute *internalValue(const xml_attribute *);
  *************************************************************/
 
 typedef struct {
-  s_xml_node *root;
+  struct s_xml_node *root;
 } xml_node;
 
-bool empty(const xml_node *);
-xml_node_type type(const xml_node *);
+bool emptyNode(const xml_node *);
+enum xml_node_type type(const xml_node *);
 
 #endif
 
