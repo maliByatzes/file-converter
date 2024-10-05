@@ -67,27 +67,27 @@ typedef enum {
 
 // TODO: Declare formatting flags
 
-struct s_xml_attribute;
-struct s_xml_node;
-struct xml_node_iterator;
-struct xml_attribute_iterator;
-struct xml_named_node_iterator;
-struct xml_tree_walker;
-struct xml_parse_result;
-// struct xml_node;
-struct xml_text;
-
-/*************************************************************
- *
- * XML Attribute struct
- *
- *************************************************************/
-
+typedef struct s_xml_attribute s_xml_attribute;
+typedef struct s_xml_node s_xml_node;
+typedef struct xml_node_iterator xml_node_iterator;
+typedef struct xml_attribute_iterator xml_attribute_iterator;
+typedef struct xml_named_node_iterator xml_named_node_iterator;
+typedef struct xml_tree_walker xml_tree_walker;
+typedef struct xml_parse_result xml_parse_result;
 typedef struct {
   struct s_xml_attribute *_attr;
 } xml_attribute;
+typedef struct {
+  struct s_xml_node *root;
+} xml_node;
+typedef struct xml_text xml_text;
 
-// struct xml_attribute methods
+/*************************************************************
+ *
+ * XML Attribute functions
+ *
+ *************************************************************/
+
 bool emptyAttr(const xml_attribute *);
 bool validAttr(const xml_attribute *);
 
@@ -120,17 +120,13 @@ xml_attribute nextAttribute(const xml_attribute *);
 xml_attribute previousAttribute(const xml_attribute *);
 
 size_t hashValueAttribute(const xml_attribute *);
-struct s_xml_attribute *internalValueAttribute(const xml_attribute *);
+s_xml_attribute *internalValueAttribute(const xml_attribute *);
 
 /*************************************************************
  *
- * XML Node struct
+ * XML Node functions
  *
  *************************************************************/
-
-typedef struct {
-  struct s_xml_node *root;
-} xml_node;
 
 bool emptyNode(const xml_node *);
 bool validNode(const xml_node *);
@@ -146,7 +142,7 @@ xml_node nextSibling(const xml_node *);
 xml_node previousSibling(const xml_node *);
 xml_node getParentNode(const xml_node *);
 xml_node getRootNode(const xml_node *);
-struct xml_text getTextNode(const xml_node *);
+xml_text getTextNode(const xml_node *);
 
 xml_node getChildNode(const xml_node *, const char */* name */);
 xml_attribute getAttributeNode(const xml_node *, const char */* name */);
@@ -198,7 +194,7 @@ bool removeChildNode(xml_node *, const xml_node */* node */);
 bool removeChildNameNode(xml_node *, const char */* name */);
 bool removeAllChildren(xml_node *);
 
-struct xml_parse_result append_buffer(xml_node *, const void */* contents */, size_t /* size */, unsigned int /* options */, xml_encoding /* encoding */);
+xml_parse_result append_buffer(xml_node *, const void */* contents */, size_t /* size */, unsigned int /* options */, xml_encoding /* encoding */);
 
 typedef bool (*PredicateAttr)(xml_attribute attr);
 
@@ -262,10 +258,16 @@ xml_node findChildByAttrValueNode(const xml_node *, const char */* name */, cons
 xml_node findChildByAttrNode(const xml_node *, const char */* name */, const char */* attr_value */);
 xml_node firstElementByPathNode(const xml_node *, const char */* path */, char /* delimeter */);
 
-bool traverseNode(xml_node *, struct xml_tree_walker */* walker */);
+bool traverseNode(xml_node *, xml_tree_walker */* walker */);
 ptrdiff_t offsetDeubgNode(const xml_node *);
 size_t hashValueNode(const xml_node *);
-struct s_xml_node *internalObjectNode(const xml_node *);
+s_xml_node *internalObjectNode(const xml_node *);
+
+/*************************************************************
+ *
+ * XML Text functions
+ *
+ *************************************************************/
 
 #endif
 
