@@ -13,6 +13,7 @@
 #if defined(_NEW_API)
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef const unsigned int CUI;
 
@@ -118,8 +119,8 @@ bool setValueBool(xml_attribute *, bool /* rhs */);
 xml_attribute nextAttribute(const xml_attribute *);
 xml_attribute previousAttribute(const xml_attribute *);
 
-size_t hashValue(const xml_attribute *);
-struct s_xml_attribute *internalValue(const xml_attribute *);
+size_t hashValueAttribute(const xml_attribute *);
+struct s_xml_attribute *internalValueAttribute(const xml_attribute *);
 
 /*************************************************************
  *
@@ -262,6 +263,9 @@ xml_node findChildByAttrNode(const xml_node *, const char */* name */, const cha
 xml_node firstElementByPathNode(const xml_node *, const char */* path */, char /* delimeter */);
 
 bool traverseNode(xml_node *, struct xml_tree_walker */* walker */);
+ptrdiff_t offsetDeubgNode(const xml_node *);
+size_t hashValueNode(const xml_node *);
+struct s_xml_node *internalObjectNode(const xml_node *);
 
 #endif
 
